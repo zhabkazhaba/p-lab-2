@@ -26,7 +26,7 @@ int main() {
     std::string times_file = "../data/out_times.csv";
 
     std::cout << "Читаем данные из " << in_file << "\n";
-    std::vector<Resident> original_data = read_csv(in_file);
+    std::vector<Resident> original_data = util::read_csv(in_file);
     std::cout << "Успешно прочитано " << original_data.size() << "\n";
 
     if (original_data.empty()) {
@@ -34,7 +34,8 @@ int main() {
         return 1;
     }
 
-    std::vector<int> sizes = {100, 500, 1000, 2500, 5000, 10000, 25000, 50000, 75000, 100000, 1000000};
+    std::vector<int> sizes = {100, 500, 1000, 2500, 5000, 10000, 25000, 50000, 75000, 100000, 250000, 500000, 1000000};
+    std::vector<util::TimeLog> time_results;
 
     std::ofstream t_file(times_file);
     if (!t_file.is_open()) {
@@ -77,7 +78,8 @@ for (int size : sizes) {
         }
 
         // Хэш-таблица
-        htable::HashTable hash_table(size / 2 > 0 ? size / 2 : 10);
+        unsigned long buckets = util::get_closest_prime(size);
+        htable::HashTable hash_table(buckets);
         for (const auto& res : slice) {
             hash_table.insert(res);
         }
@@ -89,14 +91,14 @@ for (int size : sizes) {
         }
 
         // Замеряем время
-        long long time_linear = 0, time_bt = 0, time_rbt = 0, time_hash = 0, time_map = 0;
+        long long time_lin = 0, time_bt = 0, time_rbt = 0, time_hash = 0, time_map = 0;
 
         auto start = std::chrono::high_resolution_clock::now();
         for (const auto& key : search_keys) {
             auto res = linear_search(slice, key); 
         }
         auto end = std::chrono::high_resolution_clock::now();
-        time_linear = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
+        time_lin = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
 
         start = std::chrono::high_resolution_clock::now();
         for (const auto& key : search_keys) {
@@ -131,17 +133,12 @@ for (int size : sizes) {
         end = std::chrono::high_resolution_clock::now();
         time_map = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
 
-        // Записываем результаты
-        int collisions = hash_table.getCollisions();
+        int colls = hash_table.getCollisions();
         
-        t_file << size << ";" 
-               << time_linear << ";" 
-               << time_bt << ";" 
-               << time_rbt << ";" 
-               << time_hash << ";" 
-               << time_map << ";" 
-               << collisions << "\n";
+        time_results.push_back({size, time_lin, time_bt, time_rbt, time_hash, time_map, colls});
     }
+
+    util::write_times_csv(times_file, time_results);
 
     std::cout << "Конец замеров\n";
     return 0;

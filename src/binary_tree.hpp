@@ -24,7 +24,7 @@ namespace btree {
         tnode* root = new tnode(input[mid]);
 
         root->left = buildTree(input, start, mid - 1);
-        root->right = buildTree(input, mid +1, end);
+        root->right = buildTree(input, mid + 1, end);
 
         return root;
     }

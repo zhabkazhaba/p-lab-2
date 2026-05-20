@@ -12,7 +12,8 @@ FIO_LIST = [
 STREET_LIST = [
     "Первая", "Вторая", "Третья", "Главная", "Красная",
     "Синяя", "Пушкина", "Ломоносова", "Пушкина", "Ленина",
-    "Авиаторов", "Таллинская", "Московская", "Мира", "Шипиловская"
+    "Авиаторов", "Таллинская", "Московская", "Мира", "Шипиловская",
+    "Синяя", "Желтая", "Белая", "Арбатская", "Покровская"
 ]
 
 def main():
@@ -29,7 +30,7 @@ def main():
 
     while len(unique_records) < n:
         fio = random.choice(FIO_LIST)
-        street = random.choice(STREET_LIST) + " " + str(random.randint(0,20000))
+        street = random.choice(STREET_LIST) + " " + str(random.randint(0,500000))
         house = random.randint(1, 100)
         apartment = random.randint(1, 1000)
         birth_year = random.randint(1900, 2026)
